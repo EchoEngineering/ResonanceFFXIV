@@ -31,6 +31,9 @@ public sealed class Plugin : IDalamudPlugin
     // AT Protocol Client
     private readonly AtProtocolClient _atProtocolClient;
     
+    // Account Generation Service
+    private readonly AccountGenerationService _accountGenerationService;
+    
     // IPC Providers - What Resonance offers to other plugins
     private readonly ICallGateProvider<Dictionary<string, object>, bool> _publishDataGate;
     private readonly ICallGateProvider<string, bool> _authenticateGate;
@@ -55,9 +58,12 @@ public sealed class Plugin : IDalamudPlugin
         // Initialize AT Protocol client
         _atProtocolClient = new AtProtocolClient(_log);
         
+        // Initialize account generation service
+        _accountGenerationService = new AccountGenerationService(_log, _atProtocolClient);
+        
         // Initialize windows
         _mainWindow = new MainWindow(this, _configuration, _atProtocolClient);
-        _configWindow = new ConfigWindow(_configuration, _atProtocolClient);
+        _configWindow = new ConfigWindow(_configuration, _atProtocolClient, _accountGenerationService);
         
         // Register windows with WindowSystem
         WindowSystem.AddWindow(_mainWindow);
@@ -121,6 +127,12 @@ public sealed class Plugin : IDalamudPlugin
                 return false;
             }
             
+            // Add user's chosen ResonanceHandle to the data if using auto-account
+            if (_configuration.UseAutoAccount && !string.IsNullOrEmpty(_configuration.ResonanceHandle))
+            {
+                data["ResonanceHandle"] = _configuration.ResonanceHandle;
+            }
+            
             // Publish to AT Protocol asynchronously
             Task.Run(async () =>
             {
@@ -128,8 +140,9 @@ public sealed class Plugin : IDalamudPlugin
                 if (success)
                 {
                     _log.Info("Successfully published character data to AT Protocol");
-                    // Optionally broadcast to local IPC subscribers as well
-                    _dataReceivedGate.SendMessage(data, _atProtocolClient.CurrentDid ?? "unknown");
+                    // Broadcast to local IPC subscribers with the user's display name
+                    var displayName = _configuration.UseAutoAccount ? _configuration.ResonanceHandle : _atProtocolClient.CurrentHandle;
+                    _dataReceivedGate.SendMessage(data, displayName ?? "unknown");
                 }
                 else
                 {
