@@ -253,6 +253,9 @@ public sealed class Plugin : IDalamudPlugin
         // Dispose AT Protocol client
         _atProtocolClient?.Dispose();
         
+        // Dispose account generation service
+        _accountGenerationService?.Dispose();
+        
         _log.Info("Resonance disposed");
     }
 }
