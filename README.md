@@ -1,6 +1,6 @@
 # Resonance - Universal FFXIV Mod Sync Protocol
 
-A decentralized, cross-client synchronization protocol for FFXIV modification and appearance data. Resonance enables seamless synchronization between different Mare forks including TeraSync, Neko Net, Lightless, Snowcloak, and any future clients.
+A decentralized, cross-client synchronization protocol for FFXIV modification and appearance data. Resonance enables seamless synchronization between different Mare-compatible clients, starting with TeraSync and Neko Net.
 
 ## 🌟 Features
 
@@ -34,10 +34,8 @@ That's it! Resonance handles all the AT Protocol complexity.
 
 ### Supported Clients
 - ✅ TeraSync V2
-- ✅ Neko Net Sync
-- ✅ Lightless
-- ✅ Snowcloak
-- ✅ Any Mare-compatible fork
+- ✅ Neko Net Sync  
+- ✅ Any Mare-compatible fork (integration guide provided)
 
 ## 📡 How It Works
 
@@ -47,9 +45,9 @@ That's it! Resonance handles all the AT Protocol complexity.
 4. **Their clients** receive the data via IPC and apply it
 
 ```
-TeraSync → Resonance → AT Protocol Network → Resonance → Neko Net
-                            ↕                    ↕
-                        Lightless            Snowcloak
+Client A → Resonance → AT Protocol Network → Resonance → Client B
+                           ↕                    ↕
+                       Client C              Client D
 ```
 
 ## 🤝 Contributing
