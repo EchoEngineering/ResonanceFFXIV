@@ -3,6 +3,7 @@ using Dalamud.Interface.Windowing;
 using Dalamud.Plugin;
 using Dalamud.Plugin.Ipc;
 using Dalamud.Plugin.Services;
+using Resonance.Services;
 using Resonance.Windows;
 using System;
 using System.Collections.Generic;
@@ -15,6 +16,7 @@ public sealed class Plugin : IDalamudPlugin
     public string Name => "Resonance";
     
     private readonly IDalamudPluginInterface _pluginInterface;
+    public IDalamudPluginInterface PluginInterface => _pluginInterface;
     private readonly ICommandManager _commandManager;
     private readonly IPluginLog _log;
     
@@ -25,6 +27,9 @@ public sealed class Plugin : IDalamudPlugin
     
     // Configuration
     private readonly Configuration _configuration;
+    
+    // AT Protocol Client
+    private readonly AtProtocolClient _atProtocolClient;
     
     // IPC Providers - What Resonance offers to other plugins
     private readonly ICallGateProvider<Dictionary<string, object>, bool> _publishDataGate;
@@ -47,9 +52,12 @@ public sealed class Plugin : IDalamudPlugin
         _configuration = _pluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
         _configuration.Initialize(_pluginInterface);
         
+        // Initialize AT Protocol client
+        _atProtocolClient = new AtProtocolClient(_log);
+        
         // Initialize windows
-        _mainWindow = new MainWindow(this, _configuration);
-        _configWindow = new ConfigWindow(_configuration);
+        _mainWindow = new MainWindow(this, _configuration, _atProtocolClient);
+        _configWindow = new ConfigWindow(_configuration, _atProtocolClient);
         
         // Register windows with WindowSystem
         WindowSystem.AddWindow(_mainWindow);
@@ -107,14 +115,26 @@ public sealed class Plugin : IDalamudPlugin
         {
             _log.Debug($"Received data from client for publishing");
             
-            // TODO: Convert to AT Protocol record and publish
-            // For now, just echo back to all connected clients for testing
+            if (!_atProtocolClient.IsAuthenticated)
+            {
+                _log.Warning("Cannot publish data - not authenticated with AT Protocol");
+                return false;
+            }
+            
+            // Publish to AT Protocol asynchronously
             Task.Run(async () =>
             {
-                await Task.Delay(100); // Simulate network delay
-                
-                // Broadcast to all IPC subscribers
-                _dataReceivedGate.SendMessage(data, "test-user-did");
+                var success = await _atProtocolClient.PublishCharacterDataAsync(data);
+                if (success)
+                {
+                    _log.Info("Successfully published character data to AT Protocol");
+                    // Optionally broadcast to local IPC subscribers as well
+                    _dataReceivedGate.SendMessage(data, _atProtocolClient.CurrentDid ?? "unknown");
+                }
+                else
+                {
+                    _log.Error("Failed to publish character data to AT Protocol");
+                }
             });
             
             return true;
@@ -127,24 +147,41 @@ public sealed class Plugin : IDalamudPlugin
     }
     
     /// <summary>
-    /// Authenticates with AT Protocol using a handle
+    /// Authenticates with AT Protocol using a handle and password
     /// </summary>
-    private bool Authenticate(string handle)
+    private bool Authenticate(string credentials)
     {
         try
         {
+            // Parse credentials - expected format: "handle:password"
+            var parts = credentials.Split(':', 2);
+            if (parts.Length != 2)
+            {
+                _log.Error("Invalid credentials format. Expected 'handle:password'");
+                return false;
+            }
+            
+            var handle = parts[0];
+            var password = parts[1];
+            
             _log.Info($"Authenticating with handle: {handle}");
             
-            // TODO: Implement AT Protocol authentication
-            // For now, always return true for testing
-            
+            // Authenticate asynchronously
             Task.Run(async () =>
             {
-                await Task.Delay(100);
-                _clientConnectedGate.SendMessage(handle);
+                var success = await _atProtocolClient.AuthenticateAsync(handle, password);
+                if (success)
+                {
+                    _log.Info($"Successfully authenticated as: {_atProtocolClient.CurrentHandle}");
+                    _clientConnectedGate.SendMessage(_atProtocolClient.CurrentDid ?? handle);
+                }
+                else
+                {
+                    _log.Error("Authentication failed");
+                }
             });
             
-            return true;
+            return true; // Return true for async operation started
         }
         catch (Exception ex)
         {
@@ -158,8 +195,7 @@ public sealed class Plugin : IDalamudPlugin
     /// </summary>
     private bool IsAuthenticated()
     {
-        // TODO: Check actual authentication status
-        return false;
+        return _atProtocolClient.IsAuthenticated;
     }
     
     /// <summary>
@@ -200,6 +236,9 @@ public sealed class Plugin : IDalamudPlugin
         _authenticateGate.UnregisterFunc();
         _isAuthenticatedGate.UnregisterFunc();
         _getConnectedClientsGate.UnregisterFunc();
+        
+        // Dispose AT Protocol client
+        _atProtocolClient?.Dispose();
         
         _log.Info("Resonance disposed");
     }

@@ -200,8 +200,47 @@ public class MainWindow : Window, IDisposable
 
     private bool CheckForClient(string clientName)
     {
-        // TODO: Implement actual IPC detection of other Mare clients
-        // For now, return false since AT Protocol isn't implemented yet
-        return false;
+        try
+        {
+            return clientName switch
+            {
+                "TeraSync" => CheckForTeraSync(),
+                "NekoNet" => CheckForNekoNet(),
+                _ => false
+            };
+        }
+        catch
+        {
+            return false;
+        }
+    }
+    
+    private bool CheckForTeraSync()
+    {
+        try
+        {
+            // Try to get a TeraSync IPC provider - if it exists, TeraSync is running
+            _plugin.PluginInterface.GetIpcSubscriber<string, object, bool>("TeraSyncV2.LoadMcdf");
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+    
+    private bool CheckForNekoNet()
+    {
+        try
+        {
+            // Try to get a Neko Net IPC provider - placeholder for when Neko Net adds support
+            // This will need to be updated once we know Neko Net's IPC identifiers
+            _plugin.PluginInterface.GetIpcSubscriber<object>("NekoNet.IsAvailable");
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
     }
 }
