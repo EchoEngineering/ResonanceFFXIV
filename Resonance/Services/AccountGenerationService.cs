@@ -70,6 +70,29 @@ public class AccountGenerationService
         
         return password.ToString();
     }
+
+    /// <summary>
+    /// Generates a temporary email address for account creation
+    /// Uses the same hash as the handle for consistency
+    /// </summary>
+    public string GenerateEmail(string handle)
+    {
+        // Extract the hash from the handle (ffxiv-sync-{hash}.bsky.social)
+        var parts = handle.Split('-');
+        if (parts.Length >= 3)
+        {
+            var hashPart = parts[2].Split('.')[0]; // Get hash before .bsky.social
+            return $"ffxiv-sync-{hashPart}@tempmail.plus";
+        }
+        
+        // Fallback if handle format is unexpected
+        using (var sha256 = SHA256.Create())
+        {
+            var hash = sha256.ComputeHash(Encoding.UTF8.GetBytes(handle));
+            var shortHash = Convert.ToHexString(hash)[..8].ToLowerInvariant();
+            return $"ffxiv-sync-{shortHash}@tempmail.plus";
+        }
+    }
     
     /// <summary>
     /// Checks if a handle is available on Bluesky
@@ -107,7 +130,7 @@ public class AccountGenerationService
     }
 
     /// <summary>
-    /// Creates a Bluesky account with the provided handle and password
+    /// Creates a Bluesky account with the provided handle, email, and password
     /// </summary>
     private async Task<(bool Success, string ErrorMessage)> CreateBlueskyAccountAsync(string handle, string password)
     {
@@ -116,16 +139,19 @@ public class AccountGenerationService
             const string pdsEndpoint = "https://bsky.social";
             var createAccountUrl = $"{pdsEndpoint}/xrpc/com.atproto.server.createAccount";
             
+            var email = GenerateEmail(handle);
+            
             var requestData = new
             {
                 handle = handle,
+                email = email,
                 password = password
             };
             
             var json = JsonSerializer.Serialize(requestData);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
             
-            _logger.Info($"Attempting to create account for handle: {handle}");
+            _logger.Info($"Attempting to create account for handle: {handle} with email: {email}");
             var response = await _httpClient.PostAsync(createAccountUrl, content);
             
             if (response.IsSuccessStatusCode)
@@ -156,6 +182,10 @@ public class AccountGenerationService
             if (errorContent.Contains("UnsupportedDomain"))
             {
                 return (false, "Handle domain not supported");
+            }
+            if (errorContent.Contains("InvalidRequest") && errorContent.Contains("Email"))
+            {
+                return (false, "Email validation failed");
             }
             
             return (false, $"Account creation failed: {errorContent}");
