@@ -1,6 +1,9 @@
+using Dalamud.Game.Command;
+using Dalamud.Interface.Windowing;
 using Dalamud.Plugin;
 using Dalamud.Plugin.Ipc;
 using Dalamud.Plugin.Services;
+using Resonance.Windows;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -12,7 +15,16 @@ public sealed class Plugin : IDalamudPlugin
     public string Name => "Resonance";
     
     private readonly IDalamudPluginInterface _pluginInterface;
+    private readonly ICommandManager _commandManager;
     private readonly IPluginLog _log;
+    
+    // Window Management
+    public readonly WindowSystem WindowSystem = new("Resonance");
+    private readonly MainWindow _mainWindow;
+    private readonly ConfigWindow _configWindow;
+    
+    // Configuration
+    private readonly Configuration _configuration;
     
     // IPC Providers - What Resonance offers to other plugins
     private readonly ICallGateProvider<Dictionary<string, object>, bool> _publishDataGate;
@@ -25,10 +37,38 @@ public sealed class Plugin : IDalamudPlugin
     private readonly ICallGateProvider<string, object> _clientConnectedGate;
     private readonly ICallGateProvider<string, object> _clientDisconnectedGate;
     
-    public Plugin(IDalamudPluginInterface pluginInterface, IPluginLog log)
+    public Plugin(IDalamudPluginInterface pluginInterface, ICommandManager commandManager, IPluginLog log)
     {
         _pluginInterface = pluginInterface;
+        _commandManager = commandManager;
         _log = log;
+        
+        // Initialize configuration
+        _configuration = _pluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
+        _configuration.Initialize(_pluginInterface);
+        
+        // Initialize windows
+        _mainWindow = new MainWindow(this, _configuration);
+        _configWindow = new ConfigWindow(_configuration);
+        
+        // Register windows with WindowSystem
+        WindowSystem.AddWindow(_mainWindow);
+        WindowSystem.AddWindow(_configWindow);
+        
+        // Register UI handlers
+        _pluginInterface.UiBuilder.Draw += DrawUI;
+        _pluginInterface.UiBuilder.OpenConfigUi += ToggleConfigUI;
+        _pluginInterface.UiBuilder.OpenMainUi += ToggleMainUI;
+        
+        // Register chat commands
+        _commandManager.AddHandler("/resonance", new CommandInfo(OnCommand)
+        {
+            HelpMessage = "Opens the Resonance main window"
+        });
+        _commandManager.AddHandler("/resonance-config", new CommandInfo(OnConfigCommand)
+        {
+            HelpMessage = "Opens the Resonance configuration window"
+        });
         
         // Initialize IPC gates for other plugins to use
         _publishDataGate = _pluginInterface.GetIpcProvider<Dictionary<string, object>, bool>("Resonance.PublishData");
@@ -48,7 +88,13 @@ public sealed class Plugin : IDalamudPlugin
         _getConnectedClientsGate.RegisterFunc(GetConnectedClients);
         
         _log.Info("Resonance initialized - Universal cross-client mod sync ready");
-        _log.Info("Supported clients: TeraSync, Neko Net, Lightless, Snowcloak, and all Mare forks");
+        _log.Info("Supported clients: TeraSync, Neko Net, and all Mare forks");
+        
+        // Show setup window if not configured
+        if (!_configuration.IsConfigured && _configuration.ShowSetupWindow)
+        {
+            _configWindow.IsOpen = true;
+        }
     }
     
     /// <summary>
@@ -125,8 +171,31 @@ public sealed class Plugin : IDalamudPlugin
         return new List<string>();
     }
     
+    private void DrawUI() => WindowSystem.Draw();
+    
+    public void ToggleConfigUI() => _configWindow.Toggle();
+    public void ToggleMainUI() => _mainWindow.Toggle();
+    
+    private void OnCommand(string command, string args) => ToggleMainUI();
+    private void OnConfigCommand(string command, string args) => ToggleConfigUI();
+    
     public void Dispose()
     {
+        // Dispose windows
+        WindowSystem.RemoveAllWindows();
+        _mainWindow?.Dispose();
+        _configWindow?.Dispose();
+        
+        // Unregister UI handlers
+        _pluginInterface.UiBuilder.Draw -= DrawUI;
+        _pluginInterface.UiBuilder.OpenConfigUi -= ToggleConfigUI;
+        _pluginInterface.UiBuilder.OpenMainUi -= ToggleMainUI;
+        
+        // Unregister commands
+        _commandManager.RemoveHandler("/resonance");
+        _commandManager.RemoveHandler("/resonance-config");
+        
+        // Unregister IPC handlers
         _publishDataGate.UnregisterFunc();
         _authenticateGate.UnregisterFunc();
         _isAuthenticatedGate.UnregisterFunc();
