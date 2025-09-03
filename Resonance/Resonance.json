@@ -1,0 +1,16 @@
+{
+  "Author": "kirin-xiv",
+  "Name": "Resonance",
+  "Punchline": "Universal cross-client mod sync.",
+  "Description": "Enables synchronization between TeraSync, Neko Net, Lightless, Snowcloak and other Mare forks through decentralized AT Protocol.",
+  "InternalName": "Resonance",
+  "ApplicableVersion": "any",
+  "Tags": [
+    "synchronization",
+    "modding",
+    "cross-client",
+    "decentralized",
+    "at-protocol"
+  ],
+  "RepoUrl": "https://github.com/EchoEngineering/ResonanceFFXIV"
+}

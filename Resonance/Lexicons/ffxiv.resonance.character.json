@@ -1,0 +1,105 @@
+{
+  "lexicon": 1,
+  "id": "xyz.ffxiv.resonance.character",
+  "defs": {
+    "main": {
+      "type": "record",
+      "key": "tid",
+      "description": "Universal FFXIV character appearance and mod data",
+      "record": {
+        "type": "object",
+        "required": ["characterName", "sourceClient", "version", "createdAt"],
+        "properties": {
+          "characterName": {
+            "type": "string",
+            "description": "Character name",
+            "maxLength": 100
+          },
+          "worldName": {
+            "type": "string",
+            "description": "World/Server name",
+            "maxLength": 50
+          },
+          "sourceClient": {
+            "type": "string",
+            "description": "Client that created this data (TeraSync, NekoNet, etc)",
+            "maxLength": 50
+          },
+          "version": {
+            "type": "integer",
+            "description": "Data format version",
+            "minimum": 1,
+            "maximum": 999
+          },
+          "glamourerData": {
+            "type": "string",
+            "description": "Base64 encoded Glamourer customization",
+            "maxLength": 50000
+          },
+          "fileReplacements": {
+            "type": "array",
+            "description": "Penumbra mod file replacements",
+            "maxLength": 1000,
+            "items": {
+              "type": "object",
+              "required": ["gamePath", "hash"],
+              "properties": {
+                "gamePath": {
+                  "type": "string",
+                  "description": "Game file path",
+                  "maxLength": 500
+                },
+                "hash": {
+                  "type": "string",
+                  "description": "Mod file SHA256 hash",
+                  "maxLength": 64
+                }
+              }
+            }
+          },
+          "manipulationData": {
+            "type": "string",
+            "description": "Penumbra manipulation/metadata string",
+            "maxLength": 50000
+          },
+          "pluginData": {
+            "type": "object",
+            "description": "Plugin-specific data",
+            "properties": {
+              "moodles": {
+                "type": "string",
+                "description": "Moodles status data",
+                "maxLength": 10000
+              },
+              "heels": {
+                "type": "string",
+                "description": "SimpleHeels offset data",
+                "maxLength": 1000
+              },
+              "customizePlus": {
+                "type": "string",
+                "description": "Customize+ scale data",
+                "maxLength": 10000
+              },
+              "honorific": {
+                "type": "string",
+                "description": "Honorific title data",
+                "maxLength": 1000
+              }
+            }
+          },
+          "clientSpecific": {
+            "type": "object",
+            "description": "Client-specific extensions",
+            "maxProperties": 50
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "datetime",
+            "description": "Timestamp when data was created"
+          }
+        }
+      }
+    }
+  }
+}

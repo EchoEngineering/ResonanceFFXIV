@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Dalamud.NET.Sdk/13.0.0">
+  <PropertyGroup>
+    <Authors>kirin-xiv</Authors>
+    <Company>EchoEngineering</Company>
+    <Version>1.0.0.0</Version>
+    <Description>Universal cross-client mod synchronization protocol for FFXIV. Enables TeraSync, Neko Net, Lightless, Snowcloak and other Mare forks to sync with each other.</Description>
+    <Copyright>Copyright © Resonance Contributors 2025</Copyright>
+    <PackageProjectUrl>https://github.com/EchoEngineering/ResonanceFFXIV</PackageProjectUrl>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net8.0-windows7.0</TargetFramework>
+    <Platforms>x64</Platforms>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <ProduceReferenceAssembly>false</ProduceReferenceAssembly>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Text.Json" Version="8.0.0" />
+  </ItemGroup>
+</Project>

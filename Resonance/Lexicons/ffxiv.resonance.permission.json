@@ -1,0 +1,50 @@
+{
+  "lexicon": 1,
+  "id": "xyz.ffxiv.resonance.permission",
+  "defs": {
+    "main": {
+      "type": "record",
+      "key": "tid",
+      "description": "Permission grant for cross-client synchronization",
+      "record": {
+        "type": "object",
+        "required": ["targetDid", "permissions", "createdAt"],
+        "properties": {
+          "targetDid": {
+            "type": "string",
+            "description": "DID of the user being granted permissions",
+            "maxLength": 200
+          },
+          "permissions": {
+            "type": "array",
+            "description": "List of granted permissions",
+            "items": {
+              "type": "string",
+              "knownValues": [
+                "view_character",
+                "receive_updates",
+                "download_files",
+                "full_sync"
+              ]
+            }
+          },
+          "sourceClient": {
+            "type": "string",
+            "description": "Client that granted permission",
+            "maxLength": 50
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "datetime",
+            "description": "When permission was granted"
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "datetime",
+            "description": "When permission expires (optional)"
+          }
+        }
+      }
+    }
+  }
+}
