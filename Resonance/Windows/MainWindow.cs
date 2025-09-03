@@ -231,16 +231,21 @@ public class MainWindow : Window, IDisposable
     
     private bool CheckForNekoNet()
     {
-        try
-        {
-            // Try to get a Neko Net IPC provider - placeholder for when Neko Net adds support
-            // This will need to be updated once we know Neko Net's IPC identifiers
-            _plugin.PluginInterface.GetIpcSubscriber<object>("NekoNet.IsAvailable");
-            return true;
-        }
-        catch
-        {
-            return false;
-        }
+        // Neko Net hasn't implemented Resonance support yet
+        // Return false until they add actual IPC providers we can detect
+        // TODO: Update this when Neko Net adds Resonance integration
+        return false;
+        
+        // Future implementation will look like:
+        // try
+        // {
+        //     // Use actual Neko Net IPC identifiers once known
+        //     _plugin.PluginInterface.GetIpcSubscriber<object>("NekoNet.SpecificRealIpcName");
+        //     return true;
+        // }
+        // catch
+        // {
+        //     return false;
+        // }
     }
 }
