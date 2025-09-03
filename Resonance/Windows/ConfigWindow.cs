@@ -2,19 +2,23 @@ using Dalamud.Interface.Windowing;
 using Dalamud.Bindings.ImGui;
 using Dalamud.Interface;
 using Dalamud.Utility;
+using Resonance.Services;
 using System;
 using System.Numerics;
+using System.Threading.Tasks;
 
 namespace Resonance.Windows;
 
 public class ConfigWindow : Window, IDisposable
 {
     private readonly Configuration _configuration;
+    private readonly AtProtocolClient _atProtocolClient;
 
-    public ConfigWindow(Configuration configuration)
+    public ConfigWindow(Configuration configuration, AtProtocolClient atProtocolClient)
         : base("Resonance Configuration##ConfigWindow", ImGuiWindowFlags.NoCollapse)
     {
         _configuration = configuration;
+        _atProtocolClient = atProtocolClient;
         
         Size = new Vector2(500, 400);
         SizeCondition = ImGuiCond.FirstUseEver;
@@ -114,9 +118,16 @@ public class ConfigWindow : Window, IDisposable
                 
             if (ImGui.Button("Test Connection & Configure"))
             {
-                // TODO: Implement AT Protocol authentication
-                _configuration.IsConfigured = true;
-                _configuration.Save();
+                // Authenticate with AT Protocol asynchronously
+                Task.Run(async () =>
+                {
+                    var success = await _atProtocolClient.AuthenticateAsync(_configuration.AtProtocolHandle, _configuration.AtProtocolPassword);
+                    if (success)
+                    {
+                        _configuration.IsConfigured = true;
+                        _configuration.Save();
+                    }
+                });
             }
             
             if (!canConfigure)
@@ -130,10 +141,29 @@ public class ConfigWindow : Window, IDisposable
         {
             ImGui.TextColored(new Vector4(0, 1, 0, 1), "Status: Configured");
             ImGui.Text($"Handle: {_configuration.AtProtocolHandle}");
+            
+            if (_atProtocolClient.IsAuthenticated)
+            {
+                ImGui.TextColored(new Vector4(0, 1, 0, 1), $"Connected as: {_atProtocolClient.CurrentHandle}");
+                ImGui.Text($"DID: {_atProtocolClient.CurrentDid}");
+            }
+            else
+            {
+                ImGui.TextColored(new Vector4(1, 0.8f, 0, 1), "Not currently connected");
+                if (ImGui.Button("Reconnect"))
+                {
+                    Task.Run(async () =>
+                    {
+                        await _atProtocolClient.AuthenticateAsync(_configuration.AtProtocolHandle, _configuration.AtProtocolPassword);
+                    });
+                }
+            }
+            
             ImGui.Spacing();
             
             if (ImGui.Button("Reconfigure"))
             {
+                _atProtocolClient.Logout();
                 _configuration.IsConfigured = false;
                 _configuration.AtProtocolHandle = string.Empty;
                 _configuration.AtProtocolPassword = string.Empty;

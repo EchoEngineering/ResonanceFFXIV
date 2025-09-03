@@ -1,6 +1,7 @@
 using Dalamud.Interface.Windowing;
 using Dalamud.Bindings.ImGui;
 using Dalamud.Interface;
+using Resonance.Services;
 using System;
 using System.Numerics;
 
@@ -10,12 +11,14 @@ public class MainWindow : Window, IDisposable
 {
     private readonly Plugin _plugin;
     private readonly Configuration _configuration;
+    private readonly AtProtocolClient _atProtocolClient;
 
-    public MainWindow(Plugin plugin, Configuration configuration)
+    public MainWindow(Plugin plugin, Configuration configuration, AtProtocolClient atProtocolClient)
         : base("Resonance - Universal Sync###MainWindow")
     {
         _plugin = plugin;
         _configuration = configuration;
+        _atProtocolClient = atProtocolClient;
         
         SizeConstraints = new WindowSizeConstraints
         {
@@ -72,12 +75,28 @@ public class MainWindow : Window, IDisposable
             ImGui.TextColored(new Vector4(0, 1, 0, 1), "Configured");
             ImGui.Text($"Handle: {_configuration.AtProtocolHandle}");
             
-            // TODO: Show actual connection status when AT Protocol is implemented
+            // Show actual AT Protocol connection status
             ImGui.PushFont(UiBuilder.IconFont);
-            ImGui.TextColored(new Vector4(1, 0.8f, 0, 1), FontAwesomeIcon.ExclamationTriangle.ToIconString());
-            ImGui.PopFont();
-            ImGui.SameLine();
-            ImGui.TextColored(new Vector4(1, 0.8f, 0, 1), "AT Protocol: Not Connected (Not Implemented Yet)");
+            if (_atProtocolClient.IsAuthenticated)
+            {
+                ImGui.TextColored(new Vector4(0, 1, 0, 1), FontAwesomeIcon.CheckCircle.ToIconString());
+                ImGui.PopFont();
+                ImGui.SameLine();
+                ImGui.TextColored(new Vector4(0, 1, 0, 1), $"AT Protocol: Connected as {_atProtocolClient.CurrentHandle}");
+            }
+            else
+            {
+                ImGui.TextColored(new Vector4(1, 0, 0, 1), FontAwesomeIcon.ExclamationCircle.ToIconString());
+                ImGui.PopFont();
+                ImGui.SameLine();
+                ImGui.TextColored(new Vector4(1, 0, 0, 1), "AT Protocol: Not Connected");
+                ImGui.SameLine();
+                if (ImGui.Button("Connect##StatusConnect"))
+                {
+                    _plugin.ToggleConfigUI();
+                }
+                ImGui.TextColored(new Vector4(0.7f, 0.7f, 0.7f, 1), "Click Connect to authenticate with your Bluesky account");
+            }
         }
     }
 
@@ -123,7 +142,7 @@ public class MainWindow : Window, IDisposable
         if (ImGui.BeginTable("SyncCapabilities", 2, ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg))
         {
             ImGui.TableSetupColumn("Feature", ImGuiTableColumnFlags.WidthStretch);
-            ImGui.TableSetupColumn("Status", ImGuiTableColumnFlags.WidthFixed, 100);
+            ImGui.TableSetupColumn("Status", ImGuiTableColumnFlags.WidthFixed, 140);
             ImGui.TableHeadersRow();
             
             AddCapabilityRow("Glamourer Data", "Ready", new Vector4(0, 1, 0, 1), FontAwesomeIcon.Check);
@@ -131,7 +150,14 @@ public class MainWindow : Window, IDisposable
             AddCapabilityRow("Moodles Status", "Ready", new Vector4(0, 1, 0, 1), FontAwesomeIcon.Check);
             AddCapabilityRow("SimpleHeels", "Ready", new Vector4(0, 1, 0, 1), FontAwesomeIcon.Check);
             AddCapabilityRow("Customize+", "Ready", new Vector4(0, 1, 0, 1), FontAwesomeIcon.Check);
-            AddCapabilityRow("AT Protocol Sync", "In Progress", new Vector4(1, 0.8f, 0, 1), FontAwesomeIcon.Cog);
+            if (_atProtocolClient.IsAuthenticated)
+            {
+                AddCapabilityRow("AT Protocol Sync", "Connected", new Vector4(0, 1, 0, 1), FontAwesomeIcon.Check);
+            }
+            else
+            {
+                AddCapabilityRow("AT Protocol Sync", "Not Connected", new Vector4(1, 0, 0, 1), FontAwesomeIcon.ExclamationCircle);
+            }
             
             ImGui.EndTable();
         }
