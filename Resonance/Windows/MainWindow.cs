@@ -261,16 +261,20 @@ public class MainWindow : Window, IDisposable
     
     private bool CheckForAnatoliTest()
     {
-        try
-        {
-            // Try to get an Anatoli Test IPC provider - if it exists, Anatoli Test is running
-            // TODO: Replace with actual Anatoli Test IPC identifier once known
-            _plugin.PluginInterface.GetIpcSubscriber<string, object, bool>("AnatoliTest.LoadMcdf");
-            return true;
-        }
-        catch
-        {
-            return false;
-        }
+        // Anatoli Test hasn't implemented Resonance support yet
+        // Return false until we have the actual IPC identifier to avoid false positives
+        // TODO: Update this when we get the real Anatoli Test IPC identifier
+        return false;
+        
+        // Future implementation will look like:
+        // try
+        // {
+        //     _plugin.PluginInterface.GetIpcSubscriber<string, object, bool>("AnatoliTest.ActualIPCName");
+        //     return true;
+        // }
+        // catch
+        // {
+        //     return false;
+        // }
     }
 }

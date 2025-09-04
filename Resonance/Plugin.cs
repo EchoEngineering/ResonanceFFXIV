@@ -104,11 +104,12 @@ public sealed class Plugin : IDalamudPlugin
         _log.Info("Resonance initialized - Universal cross-client mod sync ready");
         _log.Info("Supported clients: TeraSync, Neko Net, Anatoli Test, and all Mare forks");
         
-        // Show setup window if not configured
-        if (!_configuration.IsConfigured && _configuration.ShowSetupWindow)
-        {
-            _configWindow.IsOpen = true;
-        }
+        // Show setup window if not configured (disabled by default)
+        // Users can open it manually with /resonance-config
+        // if (!_configuration.IsConfigured && _configuration.ShowSetupWindow)
+        // {
+        //     _configWindow.IsOpen = true;
+        // }
     }
     
     /// <summary>
