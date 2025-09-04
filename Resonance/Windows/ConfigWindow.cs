@@ -114,9 +114,16 @@ public class ConfigWindow : Window, IDisposable
         if (ImGui.IsItemHovered())
             ImGui.SetTooltip("This is how other users will see you (e.g., 'MyCharacterName')");
             
+        // Show what their actual handle will be
+        if (!string.IsNullOrEmpty(resonanceHandle))
+        {
+            var previewHandle = resonanceHandle.ToLowerInvariant().Replace(" ", "-");
+            ImGui.TextColored(new Vector4(0.7f, 0.7f, 0.7f, 1), $"Your handle will be: {previewHandle}.sync.terasync.app");
+        }
+            
         if (!_accountGenerationService.IsValidResonanceHandle(resonanceHandle) && !string.IsNullOrEmpty(resonanceHandle))
         {
-            ImGui.TextColored(new Vector4(1, 0, 0, 1), "Invalid name. Use letters, numbers, spaces, - or _");
+            ImGui.TextColored(new Vector4(1, 0, 0, 1), "Invalid name. Use letters, numbers, spaces, - or _ only");
         }
         
         bool canEnable = _accountGenerationService.IsValidResonanceHandle(resonanceHandle) && 
