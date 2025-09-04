@@ -114,15 +114,17 @@ public class MainWindow : Window, IDisposable
         // TODO: Implement actual detection of Mare clients
         bool teraSyncDetected = CheckForClient("TeraSync");
         bool nekoNetDetected = CheckForClient("NekoNet");
+        bool anatoliTestDetected = CheckForClient("AnatoliTest");
         
         DrawClientStatus("TeraSync", teraSyncDetected);
         DrawClientStatus("Neko Net", nekoNetDetected);
+        DrawClientStatus("Anatoli Test", anatoliTestDetected);
         DrawClientStatus("Other Mare Clients", false);
         
-        if (!teraSyncDetected && !nekoNetDetected)
+        if (!teraSyncDetected && !nekoNetDetected && !anatoliTestDetected)
         {
             ImGui.TextColored(new Vector4(1, 0.8f, 0, 1), "No compatible Mare clients detected.");
-            ImGui.TextWrapped("Resonance works alongside Mare clients like TeraSync, Neko Net, etc. Install a Mare client to enable sync functionality.");
+            ImGui.TextWrapped("Resonance works alongside Mare clients like TeraSync, Neko Net, Anatoli Test, etc. Install a Mare client to enable sync functionality.");
         }
     }
 
@@ -187,11 +189,11 @@ public class MainWindow : Window, IDisposable
     private void DrawWelcomeSection()
     {
         ImGui.TextColored(new Vector4(0, 0.8f, 1, 1), "Welcome to Resonance!");
-        ImGui.TextWrapped("Resonance enables different Mare clients to sync with each other. Your TeraSync can now sync with someone using Neko Net!");
+        ImGui.TextWrapped("Resonance enables different Mare clients to sync with each other. Your TeraSync can now sync with someone using Neko Net or Anatoli Test!");
         
         ImGui.Spacing();
         ImGui.Text("What you need to know:");
-        ImGui.Bullet(); ImGui.TextWrapped("Resonance works alongside your existing Mare client (TeraSync, Neko Net, etc.)");
+        ImGui.Bullet(); ImGui.TextWrapped("Resonance works alongside your existing Mare client (TeraSync, Neko Net, Anatoli Test, etc.)");
         ImGui.Bullet(); ImGui.TextWrapped("Both you and your sync partner need Resonance installed");
         ImGui.Bullet(); ImGui.TextWrapped("You'll need a free Bluesky account for the decentralized sync network");
         ImGui.Bullet(); ImGui.TextWrapped("Your existing sync functionality remains unchanged");
@@ -213,6 +215,7 @@ public class MainWindow : Window, IDisposable
             {
                 "TeraSync" => CheckForTeraSync(),
                 "NekoNet" => CheckForNekoNet(),
+                "AnatoliTest" => CheckForAnatoliTest(),
                 _ => false
             };
         }
@@ -254,5 +257,20 @@ public class MainWindow : Window, IDisposable
         // {
         //     return false;
         // }
+    }
+    
+    private bool CheckForAnatoliTest()
+    {
+        try
+        {
+            // Try to get an Anatoli Test IPC provider - if it exists, Anatoli Test is running
+            // TODO: Replace with actual Anatoli Test IPC identifier once known
+            _plugin.PluginInterface.GetIpcSubscriber<string, object, bool>("AnatoliTest.LoadMcdf");
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
     }
 }

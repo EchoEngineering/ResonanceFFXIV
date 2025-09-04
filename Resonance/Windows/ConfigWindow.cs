@@ -88,7 +88,7 @@ public class ConfigWindow : Window, IDisposable
         ImGui.Text(FontAwesomeIcon.ArrowsAltH.ToIconString());
         ImGui.PopFont();
         ImGui.SameLine();
-        ImGui.Text("etc.)");
+        ImGui.Text("Anatoli Test, etc.)");
         ImGui.Spacing();
 
         if (!_configuration.IsConfigured)
@@ -377,12 +377,13 @@ public class ConfigWindow : Window, IDisposable
     private void DrawAboutTab()
     {
         ImGui.Text("Resonance - Universal FFXIV Mod Sync Protocol");
-        ImGui.Text("Version 1.0.1.5");
+        ImGui.Text("Version 1.0.1.6");
         ImGui.Spacing();
         
         ImGui.Text("Enables cross-client synchronization between:");
         ImGui.Bullet(); ImGui.Text("TeraSync");
         ImGui.Bullet(); ImGui.Text("Neko Net");
+        ImGui.Bullet(); ImGui.Text("Anatoli Test");
         ImGui.Bullet(); ImGui.Text("Other Mare-compatible clients");
         ImGui.Spacing();
         
