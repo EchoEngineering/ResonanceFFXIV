@@ -2,10 +2,10 @@
   {
     "Author": "kirin-xiv",
     "Name": "Resonance",
-    "Description": "Universal cross-client mod synchronization protocol for FFXIV. Enables TeraSync, Neko Net, and other Mare forks to sync with each other through decentralized AT Protocol.\n\nCommands:\n• /resonance - Opens main Resonance window\n• /resonance-config - Opens configuration window\n\nFeatures:\n• Cross-client synchronization between different Mare forks\n• Decentralized AT Protocol networking (Bluesky)\n• Universal character data format\n• Glamourer, Penumbra, Moodles, SimpleHeels support\n• Customize+ and other plugin compatibility\n• No changes to existing sync functionality",
+    "Description": "Universal cross-client mod synchronization protocol for FFXIV. Enables TeraSync, Neko Net, Anatoli Test, and other Mare forks to sync with each other through decentralized AT Protocol.\n\nCommands:\n• /resonance - Opens main Resonance window\n• /resonance-config - Opens configuration window\n\nFeatures:\n• Cross-client synchronization between different Mare forks\n• Decentralized AT Protocol networking (Bluesky)\n• Universal character data format\n• Glamourer, Penumbra, Moodles, SimpleHeels support\n• Customize+ and other plugin compatibility\n• No changes to existing sync functionality",
     "Punchline": "Universal cross-client mod sync.",
     "InternalName": "Resonance",
-    "AssemblyVersion": "1.0.1.5",
+    "AssemblyVersion": "1.0.1.6",
     "RepoUrl": "https://github.com/EchoEngineering/ResonanceFFXIV",
     "ApplicableVersion": "any",
     "Tags": [
@@ -26,7 +26,7 @@
     "AcceptsFeedback": true,
     "IsHide": "False",
     "IsTestingExclusive": "False",
-    "LastUpdated": 1725402000,
+    "LastUpdated": 1756987200,
     "DownloadCount": 0,
     "DownloadLinkInstall": "https://raw.githubusercontent.com/EchoEngineering/ResonanceFFXIV/main/latest.zip",
     "DownloadLinkTesting": "https://raw.githubusercontent.com/EchoEngineering/ResonanceFFXIV/main/latest.zip",
