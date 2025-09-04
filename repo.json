@@ -5,7 +5,7 @@
     "Description": "Universal cross-client mod synchronization protocol for FFXIV. Enables TeraSync, Neko Net, and other Mare forks to sync with each other through decentralized AT Protocol.\n\nCommands:\n• /resonance - Opens main Resonance window\n• /resonance-config - Opens configuration window\n\nFeatures:\n• Cross-client synchronization between different Mare forks\n• Decentralized AT Protocol networking (Bluesky)\n• Universal character data format\n• Glamourer, Penumbra, Moodles, SimpleHeels support\n• Customize+ and other plugin compatibility\n• No changes to existing sync functionality",
     "Punchline": "Universal cross-client mod sync.",
     "InternalName": "Resonance",
-    "AssemblyVersion": "1.0.1.2",
+    "AssemblyVersion": "1.0.1.3",
     "RepoUrl": "https://github.com/EchoEngineering/ResonanceFFXIV",
     "ApplicableVersion": "any",
     "Tags": [

@@ -146,7 +146,7 @@ public class ConfigWindow : Window, IDisposable
             
             Task.Run(async () =>
             {
-                var (success, handle, password, errorMessage) = await _accountGenerationService.CreateAutoAccountAsync();
+                var (success, handle, password, errorMessage) = await _accountGenerationService.CreateCustomAccountAsync(resonanceHandle);
                 
                 _isCreatingAccount = false;
                 
