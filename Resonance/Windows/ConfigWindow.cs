@@ -159,6 +159,12 @@ public class ConfigWindow : Window, IDisposable
                 else
                 {
                     _accountCreationStatus = $"Setup failed: {errorMessage}";
+                    
+                    // If it's a verification error, provide helpful guidance
+                    if (errorMessage.Contains("Phone verification") || errorMessage.Contains("Verification is now required"))
+                    {
+                        _accountCreationStatus += "\n\nBluesky now requires phone verification for new accounts. Please:\n1. Create a free Bluesky account at bsky.app\n2. Use the Advanced Setup below to connect your account";
+                    }
                 }
             });
         }
@@ -187,7 +193,7 @@ public class ConfigWindow : Window, IDisposable
     {
         if (ImGui.CollapsingHeader("Advanced: Use Existing Bluesky Account"))
         {
-            ImGui.TextColored(new Vector4(1, 0.8f, 0, 1), "For users who already have Bluesky accounts:");
+            ImGui.TextColored(new Vector4(1, 0.8f, 0, 1), "Connect your existing Bluesky account to sync with the broader AT Protocol network:");
             ImGui.Spacing();
             
             ImGui.Text("Create a free Bluesky account:");
@@ -255,7 +261,7 @@ public class ConfigWindow : Window, IDisposable
         if (_configuration.UseAutoAccount)
         {
             ImGui.Text($"Display Name: {_configuration.ResonanceHandle}");
-            ImGui.TextColored(new Vector4(0.7f, 0.7f, 0.7f, 1), "Using auto-generated anonymous account");
+            ImGui.TextColored(new Vector4(0.7f, 0.7f, 0.7f, 1), "Using self-hosted anonymous account");
         }
         else
         {

@@ -24,7 +24,7 @@ public class AccountGenerationService
     
     /// <summary>
     /// Generates a unique handle for FFXIV sync
-    /// Format: ffxiv-sync-{8-char-hash}.bsky.social
+    /// Format: ffxiv-sync-{8-char-hash}.sync.terasync.app
     /// </summary>
     public string GenerateHandle()
     {
@@ -45,7 +45,7 @@ public class AccountGenerationService
         {
             var hash = sha256.ComputeHash(combined);
             var shortHash = Convert.ToHexString(hash)[..8].ToLowerInvariant();
-            return $"ffxiv-sync-{shortHash}.bsky.social";
+            return $"ffxiv-sync-{shortHash}.sync.terasync.app";
         }
     }
     
@@ -77,11 +77,11 @@ public class AccountGenerationService
     /// </summary>
     public string GenerateEmail(string handle)
     {
-        // Extract the hash from the handle (ffxiv-sync-{hash}.bsky.social)
+        // Extract the hash from the handle (ffxiv-sync-{hash}.sync.terasync.app)
         var parts = handle.Split('-');
         if (parts.Length >= 3)
         {
-            var hashPart = parts[2].Split('.')[0]; // Get hash before .bsky.social
+            var hashPart = parts[2].Split('.')[0]; // Get hash before .sync.terasync.app
             return $"ffxiv-sync-{hashPart}@tempmail.plus";
         }
         
@@ -95,13 +95,14 @@ public class AccountGenerationService
     }
     
     /// <summary>
-    /// Checks if a handle is available on Bluesky
+    /// Checks if a handle is available on the appropriate PDS
     /// </summary>
     public async Task<(bool Available, string ErrorMessage)> CheckHandleAvailabilityAsync(string handle)
     {
         try
         {
-            const string pdsEndpoint = "https://bsky.social";
+            // Use appropriate PDS based on handle domain
+            var pdsEndpoint = handle.EndsWith(".sync.terasync.app") ? "http://sync.terasync.app" : "https://bsky.social";
             var resolveUrl = $"{pdsEndpoint}/xrpc/com.atproto.identity.resolveHandle?handle={handle}";
             
             var response = await _httpClient.GetAsync(resolveUrl);
@@ -130,13 +131,14 @@ public class AccountGenerationService
     }
 
     /// <summary>
-    /// Creates a Bluesky account with the provided handle, email, and password
+    /// Creates an account on the appropriate PDS based on handle domain
     /// </summary>
     private async Task<(bool Success, string ErrorMessage)> CreateBlueskyAccountAsync(string handle, string password)
     {
         try
         {
-            const string pdsEndpoint = "https://bsky.social";
+            // Use our self-hosted PDS for .sync.terasync.app handles
+            var pdsEndpoint = handle.EndsWith(".sync.terasync.app") ? "http://sync.terasync.app" : "https://bsky.social";
             var createAccountUrl = $"{pdsEndpoint}/xrpc/com.atproto.server.createAccount";
             
             var email = GenerateEmail(handle);
@@ -186,6 +188,10 @@ public class AccountGenerationService
             if (errorContent.Contains("InvalidRequest") && errorContent.Contains("Email"))
             {
                 return (false, "Email validation failed");
+            }
+            if (errorContent.Contains("InvalidPhoneVerification") || errorContent.Contains("Verification is now required"))
+            {
+                return (false, "Phone verification is now required by Bluesky. Please use the Advanced Setup to connect with your existing Bluesky account instead.");
             }
             
             return (false, $"Account creation failed: {errorContent}");
@@ -268,7 +274,7 @@ public class AccountGenerationService
                 return (false, string.Empty, string.Empty, "Handle cannot be empty");
             }
             
-            var handle = $"{userHandle.ToLowerInvariant().Replace(" ", "-")}.bsky.social";
+            var handle = $"{userHandle.ToLowerInvariant().Replace(" ", "-")}.sync.terasync.app";
             var password = GeneratePassword();
             
             _logger.Info($"Checking availability for custom handle: {handle}");

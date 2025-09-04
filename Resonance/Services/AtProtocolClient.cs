@@ -185,16 +185,21 @@ public class AtProtocolClient : IDisposable
     {
         try
         {
-            // For now, use the main Bluesky PDS
-            // In a full implementation, we'd resolve the actual PDS for the handle
-            // via .well-known/atproto-did or handle resolution
+            // Route to appropriate PDS based on handle domain
+            if (handle.EndsWith(".sync.terasync.app"))
+            {
+                _logger.Info($"Using self-hosted PDS for handle: {handle}");
+                return Task.FromResult<string?>("http://sync.terasync.app");
+            }
             
             if (handle.EndsWith(".bsky.social"))
             {
+                _logger.Info($"Using Bluesky PDS for handle: {handle}");
                 return Task.FromResult<string?>("https://bsky.social");
             }
             
-            // Default to main Bluesky instance
+            // Default to main Bluesky instance for other handles
+            _logger.Info($"Using default Bluesky PDS for handle: {handle}");
             return Task.FromResult<string?>("https://bsky.social");
         }
         catch (Exception ex)
