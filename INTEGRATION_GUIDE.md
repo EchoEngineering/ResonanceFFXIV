@@ -1,23 +1,37 @@
 # Resonance Integration Guide for Mare Fork Developers
 
-## Quick Start (2 minutes)
+## NEW: Dynamic Client Registration (v1.0.1.8+)
 
-### Step 1: Install Resonance
-Users install Resonance alongside your Mare fork from the Dalamud repository.
+**No more hardcoding required!** Your client now registers itself automatically with Resonance.
 
-### Step 2: Add IPC calls to your client
+### Quick Start (30 seconds)
+
+Add these 3 lines to your plugin initialization:
+
+```csharp
+// In your Plugin.cs constructor
+var resonanceRegister = pluginInterface.GetIpcSubscriber<string, string, bool>("Resonance.RegisterClient");
+if (resonanceRegister != null)
+    resonanceRegister.InvokeFunc("YourClientName", "1.0.0"); // Your name & version
+```
+
+That's it! Your client now appears in Resonance's UI automatically. No pull requests needed!
+
+## Full Integration (5 minutes)
+
+### Step 1: Register Your Client
 
 ```csharp
 // In your plugin initialization
-IDalamudPluginInterface pluginInterface;
+var resonanceRegister = pluginInterface.GetIpcSubscriber<string, string, bool>("Resonance.RegisterClient");
+resonanceRegister?.InvokeFunc("YourClientName", "1.0.0");
 
-// Subscribe to incoming data from other clients
+// Subscribe to incoming data from other clients  
 var dataReceiver = pluginInterface.GetIpcSubscriber<Dictionary<string, object>, string, object>("Resonance.DataReceived");
-dataReceiver.Subscribe(OnResonanceDataReceived);
+dataReceiver?.Subscribe(OnResonanceDataReceived);
 
-// When you want to publish your character data
+// Get publisher for sending data
 var publisher = pluginInterface.GetIpcSubscriber<Dictionary<string, object>, bool>("Resonance.PublishData");
-publisher.InvokeFunc(ConvertToResonanceFormat(yourCharacterData));
 ```
 
 ### Step 3: Convert your data format

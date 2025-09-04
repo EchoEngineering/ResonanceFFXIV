@@ -111,20 +111,29 @@ public class MainWindow : Window, IDisposable
     {
         ImGui.Text("Mare Client Detection");
         
-        // TODO: Implement actual detection of Mare clients
-        bool teraSyncDetected = CheckForClient("TeraSync");
-        bool nekoNetDetected = CheckForClient("NekoNet");
-        bool anatoliTestDetected = CheckForClient("AnatoliTest");
+        // Get dynamically registered clients
+        var registeredClients = _plugin.GetRegisteredClients();
         
-        DrawClientStatus("TeraSync", teraSyncDetected);
-        DrawClientStatus("Neko Net", nekoNetDetected);
-        DrawClientStatus("Anatoli Test", anatoliTestDetected);
-        DrawClientStatus("Other Mare Clients", false);
-        
-        if (!teraSyncDetected && !nekoNetDetected && !anatoliTestDetected)
+        if (registeredClients.Count == 0)
         {
-            ImGui.TextColored(new Vector4(1, 0.8f, 0, 1), "No compatible Mare clients detected.");
-            ImGui.TextWrapped("Resonance works alongside Mare clients like TeraSync, Neko Net, Anatoli Test, etc. Install a Mare client to enable sync functionality.");
+            ImGui.TextColored(new Vector4(0.7f, 0.7f, 0.7f, 1), "Waiting for Mare clients to register...");
+            ImGui.TextWrapped("Compatible Mare clients will automatically appear here when they start up and register with Resonance.");
+            ImGui.Spacing();
+            ImGui.Text("Supported clients include:");
+            ImGui.Bullet(); ImGui.Text("TeraSync");
+            ImGui.Bullet(); ImGui.Text("Neko Net");
+            ImGui.Bullet(); ImGui.Text("Anatoli Test");
+            ImGui.Bullet(); ImGui.Text("Any Mare fork that implements Resonance.RegisterClient");
+        }
+        else
+        {
+            ImGui.Text($"Detected {registeredClients.Count} client(s):");
+            ImGui.Spacing();
+            
+            foreach (var client in registeredClients)
+            {
+                DrawClientStatus($"{client.Key} (v{client.Value})", true);
+            }
         }
     }
 
@@ -207,74 +216,4 @@ public class MainWindow : Window, IDisposable
         }
     }
 
-    private bool CheckForClient(string clientName)
-    {
-        try
-        {
-            return clientName switch
-            {
-                "TeraSync" => CheckForTeraSync(),
-                "NekoNet" => CheckForNekoNet(),
-                "AnatoliTest" => CheckForAnatoliTest(),
-                _ => false
-            };
-        }
-        catch
-        {
-            return false;
-        }
-    }
-    
-    private bool CheckForTeraSync()
-    {
-        try
-        {
-            // Try to get a TeraSync IPC provider - if it exists, TeraSync is running
-            _plugin.PluginInterface.GetIpcSubscriber<string, object, bool>("TeraSyncV2.LoadMcdf");
-            return true;
-        }
-        catch
-        {
-            return false;
-        }
-    }
-    
-    private bool CheckForNekoNet()
-    {
-        // Neko Net hasn't implemented Resonance support yet
-        // Return false until they add actual IPC providers we can detect
-        // TODO: Update this when Neko Net adds Resonance integration
-        return false;
-        
-        // Future implementation will look like:
-        // try
-        // {
-        //     // Use actual Neko Net IPC identifiers once known
-        //     _plugin.PluginInterface.GetIpcSubscriber<object>("NekoNet.SpecificRealIpcName");
-        //     return true;
-        // }
-        // catch
-        // {
-        //     return false;
-        // }
-    }
-    
-    private bool CheckForAnatoliTest()
-    {
-        // Anatoli Test hasn't implemented Resonance support yet
-        // Return false until we have the actual IPC identifier to avoid false positives
-        // TODO: Update this when we get the real Anatoli Test IPC identifier
-        return false;
-        
-        // Future implementation will look like:
-        // try
-        // {
-        //     _plugin.PluginInterface.GetIpcSubscriber<string, object, bool>("AnatoliTest.ActualIPCName");
-        //     return true;
-        // }
-        // catch
-        // {
-        //     return false;
-        // }
-    }
 }

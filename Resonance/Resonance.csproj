@@ -3,11 +3,11 @@
   <PropertyGroup>
     <Authors>kirin-xiv</Authors>
     <Company>EchoEngineering</Company>
-    <Version>1.0.1.7</Version>
+    <Version>1.0.1.8</Version>
     <Description>Universal cross-client mod synchronization protocol for FFXIV. Enables TeraSync, Neko Net, Anatoli Test, and other Mare forks to sync with each other.</Description>
     <Copyright>Copyright © Resonance Contributors 2025</Copyright>
     <PackageProjectUrl>https://github.com/EchoEngineering/ResonanceFFXIV</PackageProjectUrl>
-    <AssemblyVersion>1.0.1.7</AssemblyVersion>
+    <AssemblyVersion>1.0.1.8</AssemblyVersion>
   </PropertyGroup>
 
   <PropertyGroup>

@@ -493,7 +493,7 @@ public class ConfigWindow : Window, IDisposable
     private void DrawAboutTab()
     {
         ImGui.Text("Resonance - Universal FFXIV Mod Sync Protocol");
-        ImGui.Text("Version 1.0.1.7");
+        ImGui.Text("Version 1.0.1.8");
         ImGui.Spacing();
         
         ImGui.Text("Enables cross-client synchronization between:");

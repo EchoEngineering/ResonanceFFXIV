@@ -40,6 +40,10 @@ public sealed class Plugin : IDalamudPlugin
     private readonly ICallGateProvider<bool> _isAuthenticatedGate;
     private readonly ICallGateProvider<List<string>> _getConnectedClientsGate;
     
+    // Dynamic Client Registration
+    private readonly ICallGateProvider<string, string, bool> _registerClientGate;
+    private readonly Dictionary<string, string> _registeredClients = new();
+    
     // IPC Subscribers - Events Resonance sends to other plugins
     private readonly ICallGateProvider<Dictionary<string, object>, string, object> _dataReceivedGate;
     private readonly ICallGateProvider<string, object> _clientConnectedGate;
@@ -89,6 +93,7 @@ public sealed class Plugin : IDalamudPlugin
         _authenticateGate = _pluginInterface.GetIpcProvider<string, bool>("Resonance.Authenticate");
         _isAuthenticatedGate = _pluginInterface.GetIpcProvider<bool>("Resonance.IsAuthenticated");
         _getConnectedClientsGate = _pluginInterface.GetIpcProvider<List<string>>("Resonance.GetConnectedClients");
+        _registerClientGate = _pluginInterface.GetIpcProvider<string, string, bool>("Resonance.RegisterClient");
         
         // Events that other plugins can subscribe to
         _dataReceivedGate = _pluginInterface.GetIpcProvider<Dictionary<string, object>, string, object>("Resonance.DataReceived");
@@ -100,6 +105,7 @@ public sealed class Plugin : IDalamudPlugin
         _authenticateGate.RegisterFunc(Authenticate);
         _isAuthenticatedGate.RegisterFunc(IsAuthenticated);
         _getConnectedClientsGate.RegisterFunc(GetConnectedClients);
+        _registerClientGate.RegisterFunc(RegisterClient);
         
         _log.Info("Resonance initialized - Universal cross-client mod sync ready");
         _log.Info("Supported clients: TeraSync, Neko Net, Anatoli Test, and all Mare forks");
@@ -217,9 +223,41 @@ public sealed class Plugin : IDalamudPlugin
     /// </summary>
     private List<string> GetConnectedClients()
     {
-        // TODO: Return actual connected clients from AT Protocol
-        return new List<string>();
+        // Return the list of registered client names
+        return _registeredClients.Keys.ToList();
     }
+    
+    /// <summary>
+    /// Allows Mare clients to register themselves with Resonance
+    /// </summary>
+    /// <param name="clientName">Display name of the client (e.g., "TeraSync", "Neko Net")</param>
+    /// <param name="version">Version of the client</param>
+    private bool RegisterClient(string clientName, string version)
+    {
+        try
+        {
+            if (string.IsNullOrEmpty(clientName))
+                return false;
+                
+            _registeredClients[clientName] = version;
+            _log.Info($"Client registered: {clientName} v{version}");
+            
+            // Notify MainWindow to refresh UI
+            _clientConnectedGate.SendMessage(clientName);
+            
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _log.Error(ex, $"Failed to register client: {clientName}");
+            return false;
+        }
+    }
+    
+    /// <summary>
+    /// Gets the list of registered clients for UI display
+    /// </summary>
+    public Dictionary<string, string> GetRegisteredClients() => new(_registeredClients);
     
     private void DrawUI() => WindowSystem.Draw();
     
