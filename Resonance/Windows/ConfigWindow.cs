@@ -76,7 +76,19 @@ public class ConfigWindow : Window, IDisposable
         ImGui.PopFont();
         ImGui.SameLine();
         ImGui.TextColored(new Vector4(0, 0.8f, 1, 1), "Cross-Client Sync Setup");
-        ImGui.Text("Enable sync between different Mare forks (TeraSync ↔ Neko Net ↔ etc.)");
+        ImGui.Text("Enable sync between different Mare forks (TeraSync");
+        ImGui.SameLine();
+        ImGui.PushFont(UiBuilder.IconFont);
+        ImGui.Text(FontAwesomeIcon.ArrowsAltH.ToIconString());
+        ImGui.PopFont();
+        ImGui.SameLine();
+        ImGui.Text("Neko Net");
+        ImGui.SameLine();
+        ImGui.PushFont(UiBuilder.IconFont);
+        ImGui.Text(FontAwesomeIcon.ArrowsAltH.ToIconString());
+        ImGui.PopFont();
+        ImGui.SameLine();
+        ImGui.Text("etc.)");
         ImGui.Spacing();
 
         if (!_configuration.IsConfigured)
@@ -275,7 +287,7 @@ public class ConfigWindow : Window, IDisposable
         if (_configuration.UseAutoAccount)
         {
             ImGui.Text($"Display Name: {_configuration.ResonanceHandle}");
-            ImGui.TextColored(new Vector4(0.7f, 0.7f, 0.7f, 1), "Using self-hosted anonymous account");
+            ImGui.TextColored(new Vector4(0.7f, 0.7f, 0.7f, 1), "Connected to Resonance sync network");
         }
         else
         {
@@ -285,7 +297,22 @@ public class ConfigWindow : Window, IDisposable
         if (_atProtocolClient.IsAuthenticated)
         {
             ImGui.TextColored(new Vector4(0, 1, 0, 1), $"Connected as: {_atProtocolClient.CurrentHandle}");
-            ImGui.TextColored(new Vector4(0.7f, 0.7f, 0.7f, 1), $"DID: {_atProtocolClient.CurrentDid}");
+            
+            // DID with copy button
+            ImGui.Text("Your Sync ID:");
+            if (ImGui.IsItemHovered())
+                ImGui.SetTooltip("DID (Decentralized Identifier) - share this with others to enable sync");
+            ImGui.SameLine();
+            var did = _atProtocolClient.CurrentDid ?? "Unknown";
+            var truncatedDid = did.Length > 30 ? did.Substring(0, 27) + "..." : did;
+            ImGui.TextColored(new Vector4(0.7f, 0.7f, 0.7f, 1), truncatedDid);
+            ImGui.SameLine();
+            if (ImGui.Button("Copy##CopyDID"))
+            {
+                ImGui.SetClipboardText(did);
+            }
+            if (ImGui.IsItemHovered())
+                ImGui.SetTooltip($"Click to copy full Sync ID:\n{did}");
         }
         else
         {
@@ -350,7 +377,7 @@ public class ConfigWindow : Window, IDisposable
     private void DrawAboutTab()
     {
         ImGui.Text("Resonance - Universal FFXIV Mod Sync Protocol");
-        ImGui.Text("Version 1.0.0.0");
+        ImGui.Text("Version 1.0.1.4");
         ImGui.Spacing();
         
         ImGui.Text("Enables cross-client synchronization between:");
