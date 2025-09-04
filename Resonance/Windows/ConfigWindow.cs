@@ -103,7 +103,7 @@ public class ConfigWindow : Window, IDisposable
         
         ImGui.Text("Choose your sync display name:");
         var resonanceHandle = _configuration.ResonanceHandle;
-        if (ImGui.InputText("Your Display Name", ref resonanceHandle, 32))
+        if (ImGui.InputText("Your Display Name", ref resonanceHandle, 30))
         {
             if (_accountGenerationService.IsValidResonanceHandle(resonanceHandle))
             {
@@ -123,7 +123,14 @@ public class ConfigWindow : Window, IDisposable
             
         if (!_accountGenerationService.IsValidResonanceHandle(resonanceHandle) && !string.IsNullOrEmpty(resonanceHandle))
         {
-            ImGui.TextColored(new Vector4(1, 0, 0, 1), "Invalid name. Use letters, numbers, spaces, - or _ only");
+            if (resonanceHandle.Length > 30)
+            {
+                ImGui.TextColored(new Vector4(1, 0, 0, 1), $"Name too long ({resonanceHandle.Length}/30 characters). Please shorten.");
+            }
+            else
+            {
+                ImGui.TextColored(new Vector4(1, 0, 0, 1), "Invalid name. Use letters, numbers, spaces, - or _ only");
+            }
         }
         
         bool canEnable = _accountGenerationService.IsValidResonanceHandle(resonanceHandle) && 

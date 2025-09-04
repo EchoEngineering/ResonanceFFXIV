@@ -305,13 +305,17 @@ public class AccountGenerationService
     
     /// <summary>
     /// Validates that a Resonance handle is valid (alphanumeric + basic chars)
+    /// AT Protocol handles have a 253 character limit total, and we use .sync.terasync.app (18 chars)
+    /// So the user portion can be max 235 chars, but we'll be more conservative
     /// </summary>
     public bool IsValidResonanceHandle(string handle)
     {
         if (string.IsNullOrWhiteSpace(handle))
             return false;
             
-        if (handle.Length > 32) // Reasonable limit
+        // Conservative limit: user part + .sync.terasync.app should stay well under 253 chars
+        // .sync.terasync.app = 18 chars, so allow max 30 for user part to be safe
+        if (handle.Length > 30)
             return false;
             
         // Allow alphanumeric, spaces, dashes, underscores
