@@ -119,11 +119,10 @@ public class MainWindow : Window, IDisposable
             ImGui.TextColored(new Vector4(0.7f, 0.7f, 0.7f, 1), "Waiting for Mare clients to register...");
             ImGui.TextWrapped("Compatible Mare clients will automatically appear here when they start up and register with Resonance.");
             ImGui.Spacing();
-            ImGui.Text("Supported clients include:");
-            ImGui.Bullet(); ImGui.Text("TeraSync");
-            ImGui.Bullet(); ImGui.Text("Neko Net");
-            ImGui.Bullet(); ImGui.Text("Anatoli Test");
-            ImGui.Bullet(); ImGui.Text("Any Mare fork that implements Resonance.RegisterClient");
+            ImGui.Text("How it works:");
+            ImGui.Bullet(); ImGui.Text("Mare clients register themselves automatically");
+            ImGui.Bullet(); ImGui.Text("No configuration needed - just install both plugins");
+            ImGui.Bullet(); ImGui.Text("Clients appear here when they start up");
         }
         else
         {
@@ -198,13 +197,13 @@ public class MainWindow : Window, IDisposable
     private void DrawWelcomeSection()
     {
         ImGui.TextColored(new Vector4(0, 0.8f, 1, 1), "Welcome to Resonance!");
-        ImGui.TextWrapped("Resonance enables different Mare clients to sync with each other. Your TeraSync can now sync with someone using Neko Net or Anatoli Test!");
+        ImGui.TextWrapped("Resonance enables different Mare clients to sync with each other seamlessly!");
         
         ImGui.Spacing();
         ImGui.Text("What you need to know:");
-        ImGui.Bullet(); ImGui.TextWrapped("Resonance works alongside your existing Mare client (TeraSync, Neko Net, Anatoli Test, etc.)");
+        ImGui.Bullet(); ImGui.TextWrapped("Resonance works alongside your existing Mare client");
         ImGui.Bullet(); ImGui.TextWrapped("Both you and your sync partner need Resonance installed");
-        ImGui.Bullet(); ImGui.TextWrapped("You'll need a free Bluesky account for the decentralized sync network");
+        ImGui.Bullet(); ImGui.TextWrapped("Easy setup: Auto-account (no signup) OR use your existing Bluesky");
         ImGui.Bullet(); ImGui.TextWrapped("Your existing sync functionality remains unchanged");
         
         ImGui.Spacing();

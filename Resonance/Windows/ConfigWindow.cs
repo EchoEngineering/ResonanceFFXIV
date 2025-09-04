@@ -76,19 +76,13 @@ public class ConfigWindow : Window, IDisposable
         ImGui.PopFont();
         ImGui.SameLine();
         ImGui.TextColored(new Vector4(0, 0.8f, 1, 1), "Cross-Client Sync Setup");
-        ImGui.Text("Enable sync between different Mare forks (TeraSync");
-        ImGui.SameLine();
+        ImGui.Text("Enable sync between different Mare forks");
         ImGui.PushFont(UiBuilder.IconFont);
+        ImGui.SameLine();
         ImGui.Text(FontAwesomeIcon.ArrowsAltH.ToIconString());
         ImGui.PopFont();
         ImGui.SameLine();
-        ImGui.Text("Neko Net");
-        ImGui.SameLine();
-        ImGui.PushFont(UiBuilder.IconFont);
-        ImGui.Text(FontAwesomeIcon.ArrowsAltH.ToIconString());
-        ImGui.PopFont();
-        ImGui.SameLine();
-        ImGui.Text("Anatoli Test, etc.)");
+        ImGui.Text("Any compatible client");
         ImGui.Spacing();
 
         if (!_configuration.IsConfigured)
@@ -493,14 +487,17 @@ public class ConfigWindow : Window, IDisposable
     private void DrawAboutTab()
     {
         ImGui.Text("Resonance - Universal FFXIV Mod Sync Protocol");
-        ImGui.Text("Version 1.0.1.8");
+        
+        // Pull version dynamically from assembly
+        var assembly = System.Reflection.Assembly.GetExecutingAssembly();
+        var version = assembly.GetName().Version?.ToString() ?? "Unknown";
+        ImGui.Text($"Version {version}");
         ImGui.Spacing();
         
-        ImGui.Text("Enables cross-client synchronization between:");
-        ImGui.Bullet(); ImGui.Text("TeraSync");
-        ImGui.Bullet(); ImGui.Text("Neko Net");
-        ImGui.Bullet(); ImGui.Text("Anatoli Test");
-        ImGui.Bullet(); ImGui.Text("Other Mare-compatible clients");
+        ImGui.Text("Features:");
+        ImGui.Bullet(); ImGui.Text("Dynamic client discovery");
+        ImGui.Bullet(); ImGui.Text("Automatic cross-client synchronization");
+        ImGui.Bullet(); ImGui.Text("Works with any Mare-compatible client");
         ImGui.Spacing();
         
         ImGui.Text("Technology:");
