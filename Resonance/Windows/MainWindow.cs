@@ -28,29 +28,19 @@ public class MainWindow : Window, IDisposable
         
         Size = new Vector2(500, 400);
         SizeCondition = ImGuiCond.FirstUseEver;
+        
+        TitleBarButtons.Add(new TitleBarButton
+        {
+            Icon = FontAwesomeIcon.Cog,
+            ShowTooltip = () => ImGui.SetTooltip("Open Settings"),
+            Click = (button) => _plugin.ToggleConfigUI()
+        });
     }
 
     public void Dispose() { }
 
     public override void Draw()
     {
-        // Settings gear button in top-right corner
-        var windowSize = ImGui.GetWindowSize();
-        var buttonSize = new Vector2(30, 30);
-        ImGui.SetCursorPos(new Vector2(windowSize.X - buttonSize.X - 10, 10));
-        
-        ImGui.PushFont(UiBuilder.IconFont);
-        if (ImGui.Button(FontAwesomeIcon.Cog.ToIconString(), buttonSize))
-        {
-            _plugin.ToggleConfigUI();
-        }
-        ImGui.PopFont();
-        if (ImGui.IsItemHovered())
-            ImGui.SetTooltip("Open Settings");
-        
-        // Reset cursor position for main content
-        ImGui.SetCursorPos(new Vector2(10, 50));
-        
         DrawStatusSection();
         ImGui.Separator();
         DrawConnectionSection();
