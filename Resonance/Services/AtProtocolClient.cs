@@ -44,7 +44,9 @@ public class AtProtocolClient : IDisposable
         using var client = new HttpClient(handler);
         client.DefaultRequestHeaders.Add("User-Agent", "Resonance/1.0.0 FFXIV");
         
+        _logger.Debug($"Making POST request to: {url}");
         var response = await client.PostAsync(url, content);
+        _logger.Debug($"Received response: {response.StatusCode} from {url}");
         
         // If it's a redirect, follow it but keep using POST
         if ((int)response.StatusCode >= 300 && (int)response.StatusCode < 400)
@@ -59,9 +61,14 @@ public class AtProtocolClient : IDisposable
                     location = $"{uri.Scheme}://{uri.Host}{location}";
                 }
                 
-                _logger.Debug($"Following redirect from {url} to {location}");
+                _logger.Info($"Following redirect from {url} to {location}");
+                
+                // Need to recreate HttpContent as it can only be consumed once
+                string contentString = await content.ReadAsStringAsync();
+                var newContent = new StringContent(contentString, Encoding.UTF8, "application/json");
+                
                 // Recursively follow the redirect with POST
-                return await PostWithRedirectAsync(location, content);
+                return await PostWithRedirectAsync(location, newContent);
             }
         }
         
