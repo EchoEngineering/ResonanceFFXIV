@@ -77,21 +77,13 @@ public class AccountGenerationService
     /// </summary>
     public string GenerateEmail(string handle)
     {
-        // Extract the hash from the handle (ffxiv-sync-{hash}.sync.terasync.app)
-        var parts = handle.Split('-');
-        if (parts.Length >= 3)
-        {
-            var hashPart = parts[2].Split('.')[0]; // Get hash before .sync.terasync.app
-            return $"ffxiv-sync-{hashPart}@tempmail.plus";
-        }
+        // For self-hosted PDS, we use a simple format based on the handle
+        // Extract just the username part before .sync.terasync.app
+        var username = handle.Split('.')[0];
         
-        // Fallback if handle format is unexpected
-        using (var sha256 = SHA256.Create())
-        {
-            var hash = sha256.ComputeHash(Encoding.UTF8.GetBytes(handle));
-            var shortHash = Convert.ToHexString(hash)[..8].ToLowerInvariant();
-            return $"ffxiv-sync-{shortHash}@tempmail.plus";
-        }
+        // Use a local domain that clearly indicates this is for internal use only
+        // These emails are never actually used since our PDS doesn't send email
+        return $"{username}@resonance.local";
     }
     
     /// <summary>
