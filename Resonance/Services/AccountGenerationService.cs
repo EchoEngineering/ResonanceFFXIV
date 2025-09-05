@@ -102,7 +102,7 @@ public class AccountGenerationService
         try
         {
             // Use appropriate PDS based on handle domain
-            var pdsEndpoint = handle.EndsWith(".sync.terasync.app") ? "http://sync.terasync.app" : "https://bsky.social";
+            var pdsEndpoint = handle.EndsWith(".sync.terasync.app") ? "https://sync.terasync.app" : "https://bsky.social";
             var resolveUrl = $"{pdsEndpoint}/xrpc/com.atproto.identity.resolveHandle?handle={handle}";
             
             var response = await _httpClient.GetAsync(resolveUrl);
@@ -138,7 +138,7 @@ public class AccountGenerationService
         try
         {
             // Use our self-hosted PDS for .sync.terasync.app handles
-            var pdsEndpoint = handle.EndsWith(".sync.terasync.app") ? "http://sync.terasync.app" : "https://bsky.social";
+            var pdsEndpoint = handle.EndsWith(".sync.terasync.app") ? "https://sync.terasync.app" : "https://bsky.social";
             var createAccountUrl = $"{pdsEndpoint}/xrpc/com.atproto.server.createAccount";
             
             var email = GenerateEmail(handle);

@@ -1,0 +1,66 @@
+# Main PDS domain
+sync.terasync.app {
+    # Enable automatic HTTPS
+    tls {
+        email admin@terasync.app
+    }
+    
+    # Proxy to PDS container
+    reverse_proxy resonance_pds:3000 {
+        header_up Host {host}
+        header_up X-Real-IP {remote}
+        header_up X-Forwarded-For {remote}
+        header_up X-Forwarded-Proto {scheme}
+    }
+    
+    # Health check endpoint
+    handle /health {
+        reverse_proxy resonance_pds:3000
+    }
+    
+    # AT Protocol endpoints
+    handle /xrpc/* {
+        reverse_proxy resonance_pds:3000
+    }
+    
+    # Well-known endpoints
+    handle /.well-known/* {
+        reverse_proxy resonance_pds:3000
+    }
+    
+    # Logging
+    log {
+        output file /var/log/caddy/sync-terasync-app.log
+    }
+}
+
+# User handle domains (wildcard)
+*.sync.terasync.app {
+    tls {
+        email admin@terasync.app
+        on_demand
+    }
+    
+    # Proxy to PDS for user handle resolution
+    reverse_proxy resonance_pds:3000 {
+        header_up Host {host}
+        header_up X-Real-IP {remote}
+        header_up X-Forwarded-For {remote}
+        header_up X-Forwarded-Proto {scheme}
+    }
+    
+    # AT Protocol endpoints for user handles
+    handle /.well-known/* {
+        reverse_proxy resonance_pds:3000
+    }
+}
+
+# Global options
+{
+    # Enable on-demand TLS for wildcard
+    on_demand_tls {
+        ask http://localhost:3000/tls-ask
+        interval 2m
+        burst 5
+    }
+}

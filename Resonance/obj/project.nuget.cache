@@ -1,8 +1,12 @@
 {
   "version": 2,
-  "dgSpecHash": "8mQB16oHyJQ=",
+  "dgSpecHash": "QAJp26de2X4=",
   "success": true,
   "projectFilePath": "F:\\source\\repos\\Resonance-FFXIV\\Resonance\\Resonance.csproj",
-  "expectedPackageFiles": [],
+  "expectedPackageFiles": [
+    "C:\\Users\\Alyso\\.nuget\\packages\\dalamudpackager\\13.0.0\\dalamudpackager.13.0.0.nupkg.sha512",
+    "C:\\Users\\Alyso\\.nuget\\packages\\dotnet.reproduciblebuilds\\1.2.25\\dotnet.reproduciblebuilds.1.2.25.nupkg.sha512",
+    "C:\\Users\\Alyso\\.nuget\\packages\\system.text.json\\9.0.0\\system.text.json.9.0.0.nupkg.sha512"
+  ],
   "logs": []
 }

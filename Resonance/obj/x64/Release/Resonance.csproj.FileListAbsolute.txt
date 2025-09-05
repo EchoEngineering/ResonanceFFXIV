@@ -1,0 +1,9 @@
+F:\source\repos\Resonance-FFXIV\Resonance\bin\x64\Release\Resonance.deps.json
+F:\source\repos\Resonance-FFXIV\Resonance\bin\x64\Release\Resonance.dll
+F:\source\repos\Resonance-FFXIV\Resonance\obj\x64\Release\Resonance.csproj.AssemblyReference.cache
+F:\source\repos\Resonance-FFXIV\Resonance\obj\x64\Release\Resonance.GeneratedMSBuildEditorConfig.editorconfig
+F:\source\repos\Resonance-FFXIV\Resonance\obj\x64\Release\Resonance.AssemblyInfoInputs.cache
+F:\source\repos\Resonance-FFXIV\Resonance\obj\x64\Release\Resonance.AssemblyInfo.cs
+F:\source\repos\Resonance-FFXIV\Resonance\obj\x64\Release\Resonance.csproj.CoreCompileInputs.cache
+F:\source\repos\Resonance-FFXIV\Resonance\obj\x64\Release\Resonance.sourcelink.json
+F:\source\repos\Resonance-FFXIV\Resonance\obj\x64\Release\Resonance.dll

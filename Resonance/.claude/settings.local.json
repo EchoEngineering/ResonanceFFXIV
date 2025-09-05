@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(/F:\\source\\repos\\Resonance-FFXIV\\Resonance\\Windows/**)",
+      "Read(/F:\\source\\repos\\Resonance-FFXIV\\Resonance\\Windows/**)",
+      "Read(/F:\\source\\repos\\Resonance-FFXIV\\Resonance\\Lexicons/**)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
