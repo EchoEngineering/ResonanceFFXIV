@@ -27,14 +27,45 @@ public class AtProtocolClient : IDisposable
     {
         _logger = logger;
         
-        // Configure HttpClient to not automatically redirect POST requests
+        // Allow redirects but we'll handle POST redirects specially
         var handler = new HttpClientHandler()
         {
-            AllowAutoRedirect = false
+            AllowAutoRedirect = true
         };
         
         _httpClient = new HttpClient(handler);
         _httpClient.DefaultRequestHeaders.Add("User-Agent", "Resonance/1.0.0 FFXIV");
+    }
+    
+    private async Task<HttpResponseMessage> PostWithRedirectAsync(string url, HttpContent content)
+    {
+        // Create a new HttpClient that doesn't auto-redirect for this specific request
+        using var handler = new HttpClientHandler() { AllowAutoRedirect = false };
+        using var client = new HttpClient(handler);
+        client.DefaultRequestHeaders.Add("User-Agent", "Resonance/1.0.0 FFXIV");
+        
+        var response = await client.PostAsync(url, content);
+        
+        // If it's a redirect, follow it but keep using POST
+        if ((int)response.StatusCode >= 300 && (int)response.StatusCode < 400)
+        {
+            var location = response.Headers.Location?.ToString();
+            if (!string.IsNullOrEmpty(location))
+            {
+                // If relative URL, make it absolute
+                if (!location.StartsWith("http"))
+                {
+                    var uri = new Uri(url);
+                    location = $"{uri.Scheme}://{uri.Host}{location}";
+                }
+                
+                _logger.Debug($"Following redirect from {url} to {location}");
+                // Recursively follow the redirect with POST
+                return await PostWithRedirectAsync(location, content);
+            }
+        }
+        
+        return response;
     }
     
     public async Task<bool> AuthenticateAsync(string handle, string password)
@@ -65,7 +96,7 @@ public class AtProtocolClient : IDisposable
             var content = new StringContent(requestJson, Encoding.UTF8, "application/json");
             
             var sessionUrl = $"{pdsEndpoint}/xrpc/com.atproto.server.createSession";
-            var response = await _httpClient.PostAsync(sessionUrl, content);
+            var response = await PostWithRedirectAsync(sessionUrl, content);
             
             if (!response.IsSuccessStatusCode)
             {
@@ -106,7 +137,7 @@ public class AtProtocolClient : IDisposable
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _refreshJwt);
             
             var refreshUrl = $"{_pdsEndpoint}/xrpc/com.atproto.server.refreshSession";
-            var response = await _httpClient.PostAsync(refreshUrl, null);
+            var response = await PostWithRedirectAsync(refreshUrl, new StringContent("", Encoding.UTF8, "application/json"));
             
             if (!response.IsSuccessStatusCode)
             {
@@ -159,7 +190,7 @@ public class AtProtocolClient : IDisposable
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _accessJwt);
             
             var putRecordUrl = $"{_pdsEndpoint}/xrpc/com.atproto.repo.putRecord";
-            var response = await _httpClient.PostAsync(putRecordUrl, content);
+            var response = await PostWithRedirectAsync(putRecordUrl, content);
             
             if (!response.IsSuccessStatusCode)
             {

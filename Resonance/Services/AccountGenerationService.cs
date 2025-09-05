@@ -22,6 +22,36 @@ public class AccountGenerationService
         _httpClient = new HttpClient();
     }
     
+    private async Task<HttpResponseMessage> PostWithRedirectAsync(string url, HttpContent content)
+    {
+        // Create a new HttpClient that doesn't auto-redirect for this specific request
+        using var handler = new HttpClientHandler() { AllowAutoRedirect = false };
+        using var client = new HttpClient(handler);
+        
+        var response = await client.PostAsync(url, content);
+        
+        // If it's a redirect, follow it but keep using POST
+        if ((int)response.StatusCode >= 300 && (int)response.StatusCode < 400)
+        {
+            var location = response.Headers.Location?.ToString();
+            if (!string.IsNullOrEmpty(location))
+            {
+                // If relative URL, make it absolute
+                if (!location.StartsWith("http"))
+                {
+                    var uri = new Uri(url);
+                    location = $"{uri.Scheme}://{uri.Host}{location}";
+                }
+                
+                _logger.Debug($"Following redirect from {url} to {location}");
+                // Recursively follow the redirect with POST
+                return await PostWithRedirectAsync(location, content);
+            }
+        }
+        
+        return response;
+    }
+    
     /// <summary>
     /// Generates a unique handle for FFXIV sync
     /// Format: ffxiv-sync-{8-char-hash}.sync.terasync.app
@@ -146,7 +176,7 @@ public class AccountGenerationService
             var content = new StringContent(json, Encoding.UTF8, "application/json");
             
             _logger.Info($"Attempting to create account for handle: {handle} with email: {email}");
-            var response = await _httpClient.PostAsync(createAccountUrl, content);
+            var response = await PostWithRedirectAsync(createAccountUrl, content);
             
             if (response.IsSuccessStatusCode)
             {
