@@ -26,7 +26,14 @@ public class AtProtocolClient : IDisposable
     public AtProtocolClient(IPluginLog logger)
     {
         _logger = logger;
-        _httpClient = new HttpClient();
+        
+        // Configure HttpClient to not automatically redirect POST requests
+        var handler = new HttpClientHandler()
+        {
+            AllowAutoRedirect = false
+        };
+        
+        _httpClient = new HttpClient(handler);
         _httpClient.DefaultRequestHeaders.Add("User-Agent", "Resonance/1.0.0 FFXIV");
     }
     
@@ -189,7 +196,7 @@ public class AtProtocolClient : IDisposable
             if (handle.EndsWith(".sync.terasync.app"))
             {
                 _logger.Info($"Using self-hosted PDS for handle: {handle}");
-                return Task.FromResult<string?>("http://sync.terasync.app");
+                return Task.FromResult<string?>("https://sync.terasync.app");
             }
             
             if (handle.EndsWith(".bsky.social"))
